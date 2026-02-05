@@ -99,6 +99,10 @@ const CoursePage = () => {
   const isEnrolled =
     user && (course.studentsEnrolled.includes(user.id) || isInstructor);
 
+  const handleViewLesson = (lesson) => {
+    alert(lesson.content);
+  };
+
   return (
     <div className="course-page">
       <div className="card">
@@ -287,10 +291,15 @@ const CoursePage = () => {
                     {topic.lessons.map((lesson) => (
                       <div key={lesson._id} className="lesson-item">
                         <div>
-                          <span>{lesson.type}</span>
+                          <span style={{ fontWeight: "bold" }}>
+                            {lesson.type}
+                          </span>
+                          <br />
                           <span>{lesson.title}</span>
                         </div>
-                        <button>View</button>
+                        <button onClick={() => handleViewLesson(lesson)}>
+                          View
+                        </button>
                       </div>
                     ))}
                   </div>

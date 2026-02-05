@@ -96,7 +96,8 @@ h3 {
 }
 
 /* Buttons */
-.btn-primary {
+.btn-primary,
+button {
   display: inline-block;
   background-color: var(--primary);
   color: white;
@@ -221,7 +222,7 @@ h3 {
   border-collapse: collapse;
   background-color: #fff;
   border-radius: 10px;
-  overflow: hidden; /* key replacement for wrapper */
+  overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   font-family:
     system-ui,
@@ -287,7 +288,6 @@ h3 {
   color: #0f766e;
 }
 
-/* Mobile responsive without wrapper */
 @media (max-width: 768px) {
   .users-table thead {
     display: none;

@@ -65,6 +65,7 @@ router.post("/create-user", async (req, res) => {
 // Admin Get All Users
 router.get("/users", verifyToken, verifyAdmin, async (req, res) => {
   try {
+    console.log("Getting all users");
     const users = await User.find().select("-password");
     res.json(users);
   } catch (err) {

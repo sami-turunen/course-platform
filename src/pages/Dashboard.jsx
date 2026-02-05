@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+const port = 3001;
+
 const Dashboard = () => {
   const { user } = useAuth();
 
@@ -62,7 +64,7 @@ const InstructorDashboard = ({ user }) => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("/api/courses");
+      const res = await axios.get(`http://localhost:${port}/api/courses`);
       const mine = res.data.filter((c) => c.instructor._id === user.id);
       setMyCourses(mine);
     } catch (err) {
@@ -170,9 +172,19 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const usersRes = await axios.get("/api/auth/users");
+      const usersRes = await axios.get(
+        `http://localhost:${port}/api/auth/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
       setUsers(usersRes.data);
-      const coursesRes = await axios.get("/api/courses");
+      console.log(usersRes.data);
+      const coursesRes = await axios.get(
+        `http://localhost:${port}/api/courses`,
+      );
       setCourses(coursesRes.data);
     } catch (err) {
       console.error(err);
