@@ -34,7 +34,7 @@ const Home = () => {
   return (
     <div className="home-container">
       <header className="hero">
-        <h1>Welcome to MoodleClone</h1>
+        <h1>Welcome to Moodle</h1>
         <p>Start learning today.</p>
       </header>
       <div className="courses-grid">
@@ -47,9 +47,6 @@ const Home = () => {
             <p>{course.description}</p>
             <p>
               <strong>Instructor:</strong> {course.instructor.name}
-            </p>
-            <p>
-              <strong>Price:</strong> ${course.price}
             </p>
             {user && user.role === "student" && (
               <button

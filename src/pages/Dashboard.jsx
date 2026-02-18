@@ -59,7 +59,6 @@ const InstructorDashboard = ({ user }) => {
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
-    price: 0,
   });
 
   const fetchCourses = async () => {
@@ -81,7 +80,7 @@ const InstructorDashboard = ({ user }) => {
     try {
       await axios.post("/api/courses", newCourse);
       setShowForm(false);
-      setNewCourse({ title: "", description: "", price: 0 });
+      setNewCourse({ title: "", description: "" });
       fetchCourses();
     } catch (err) {
       alert(err.response?.data?.error || "Failed");
@@ -122,17 +121,6 @@ const InstructorDashboard = ({ user }) => {
             />
           </div>
 
-          <div>
-            <label>Price</label>
-            <input
-              type="number"
-              value={newCourse.price}
-              onChange={(e) =>
-                setNewCourse({ ...newCourse, price: e.target.value })
-              }
-            />
-          </div>
-
           <button type="submit">Publish</button>
         </form>
       )}
@@ -167,7 +155,6 @@ const AdminDashboard = () => {
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
-    price: 0,
   });
 
   const fetchData = async () => {
@@ -211,7 +198,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       await axios.post("/api/courses", newCourse);
-      setNewCourse({ title: "", description: "", price: 0 });
+      setNewCourse({ title: "", description: "" });
       setShowCourseForm(false);
       fetchData();
     } catch (err) {
@@ -355,17 +342,6 @@ const AdminDashboard = () => {
                   setNewCourse({ ...newCourse, description: e.target.value })
                 }
                 required
-              />
-            </div>
-
-            <div>
-              <label>Price</label>
-              <input
-                type="number"
-                value={newCourse.price}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, price: e.target.value })
-                }
               />
             </div>
 
