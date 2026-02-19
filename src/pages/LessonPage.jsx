@@ -1,190 +1,279 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const LessonPage = () => {
-	const { courseId, topicId, lessonId } = useParams();
-	const [lesson, setLesson] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(null);
-	const [user, setUser] = useState(null);
+  const { courseId, topicId, lessonId } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-	// Quiz State
-	const [quizAnswers, setQuizAnswers] = useState({});
-	const [quizSubmitted, setQuizSubmitted] = useState(false);
-	const [score, setScore] = useState(0);
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-	useEffect(() => {
-		setUser(JSON.parse(localStorage.getItem("user")));
-	}, []);
+  // Quiz State
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
 
-	useEffect(() => {
-		const fetchLesson = async () => {
-			try {
-				const res = await axios.get(`/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`);
-				setLesson(res.data);
-			} catch (err) {
-				console.error(err);
-				setError(err.response?.data?.error || "Failed to load lesson");
-			} finally {
-				setLoading(false);
-			}
-		};
+  useEffect(() => {
+    const fetchLesson = async () => {
+      try {
+        const res = await axios.get(
+          `/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`,
+        );
+        const data = res.data;
 
-		if (courseId && topicId && lessonId) {
-			fetchLesson();
-		}
-	}, [courseId, topicId, lessonId]);
+        const isStaff = user?.role === "admin" || user?.role === "instructor";
+        if (data.hidden && !isStaff) {
+          setError("This lesson is currently hidden by the instructor.");
+          return;
+        }
 
-	const handleQuizSubmit = () => {
-		let correctCount = 0;
-		if (lesson.questions) {
-			lesson.questions.forEach((q, idx) => {
-				if (quizAnswers[idx] === q.correctAnswerIndex) correctCount++;
-			});
-		}
-		setScore(correctCount);
-		setQuizSubmitted(true);
-	};
+        setLesson(data);
+      } catch (err) {
+        setError(err.response?.data?.error || "Failed to load lesson");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-	const deleteLesson = async () => {
-		try {
-			await axios.delete(`http://localhost:3001/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`);
-			window.location.href = `/courses/${courseId}`;
-		} catch (err) {
-			console.error(err);
-			setError(err.response?.data?.error || "Failed to delete lesson");
-		}
-	};
+    if (user) fetchLesson();
+  }, [courseId, topicId, lessonId, user]);
 
-	if (loading) return <div className="main-content">Loading...</div>;
-	if (error) return <div className="main-content error-msg">{error}</div>;
-	if (!lesson) return <div className="main-content">Lesson not found</div>;
+  const handleQuizSubmit = () => {
+    let correctCount = 0;
+    lesson.questions.forEach((q, idx) => {
+      if (quizAnswers[idx] === q.correctAnswerIndex) correctCount++;
+    });
+    setScore(correctCount);
+    setQuizSubmitted(true);
+  };
 
-	return (
-		<div className="lesson-page">
-			<div className="card">
-				<div style={{ marginBottom: "2rem" }}>
-					<Link to={`/courses/${courseId}`} className="btn-secondary">
-						&larr; Back to Course
-					</Link>
-					{user.role === "admin" || user.role === "instructor" ? (
-						<button onClick={deleteLesson} className="btn-danger">
-							Delete
-						</button>
-					) : null}
-				</div>
+  const toggleHidden = async () => {
+    try {
+      await axios.patch(
+        `/api/courses/${courseId}/topics/${topicId}/lessons/${lessonId}`,
+        { hidden: !lesson.hidden },
+      );
+      navigate(`/courses/${courseId}`);
+    } catch (err) {
+      alert("Failed to update visibility");
+    }
+  };
 
-				<h1>{lesson.title}</h1>
+  if (loading)
+    return (
+      <div className="flex justify-center items-center min-h-screen text-gray-500">
+        Loading lesson content...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-6 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center font-bold">
+        {error}
+      </div>
+    );
 
-				<div className="lesson-content" style={{ marginTop: "2rem" }}>
-					{lesson.type === "video" ? (
-						<div className="video-content">
-							<p style={{ marginBottom: "1rem" }}>Watch the video lesson here:</p>
-							<a href={lesson.content} target="_blank" rel="noopener noreferrer" className="btn-primary">
-								Open Video
-							</a>
-							{(lesson.content.includes("youtube.com") || lesson.content.includes("youtu.be")) && (
-								<div style={{ marginTop: "2rem", position: "relative", paddingBottom: "56.25%", height: 0 }}>
-									<iframe
-										src={lesson.content.replace("watch?v=", "embed/")}
-										title={lesson.title}
-										style={{
-											position: "absolute",
-											top: 0,
-											left: 0,
-											width: "100%",
-											height: "100%",
-											border: 0
-										}}
-										allowFullScreen
-									/>
-								</div>
-							)}
-						</div>
-					) : lesson.type === "quiz" ? (
-						<div className="quiz-content">
-							{user.role === "admin" || user.role === "instructor" ? (
-								<button onClick={() => deleteLesson()} className="btn-danger">
-									Delete
-								</button>
-							) : null}
-							{lesson.questions &&
-								lesson.questions.map((q, qIdx) => (
-									<div key={qIdx} className="quiz-question card mb-4 border p-4 rounded">
-										<h3 className="font-bold mb-2">
-											{qIdx + 1}. {q.questionText}
-										</h3>
-										{q.codeSnippet && (
-											<div className="code-snippet-container mb-4">
-												<pre className="code-snippet">
-													<code>{q.codeSnippet}</code>
-												</pre>
-											</div>
-										)}
-										<div className="options space-y-2">
-											{q.options.map((opt, oIdx) => {
-												const isSelected = quizAnswers[qIdx] === oIdx;
-												const isCorrect = q.correctAnswerIndex === oIdx;
-												let optionClass = "p-2 border rounded cursor-pointer ";
+  const isStaff = user?.role === "admin" || user?.role === "instructor";
 
-												if (quizSubmitted) {
-													if (isCorrect) optionClass += "bg-green-100 border-green-500 ";
-													else if (isSelected && !isCorrect) optionClass += "bg-red-100 border-red-500 ";
-												} else if (isSelected) {
-													optionClass += "bg-blue-50 border-blue-500 ";
-												}
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white border-b sticky top-0 z-10 px-4 py-3">
+        <div className="max-w-5xl mx-auto flex justify-between items-center">
+          <Link
+            to={`/courses/${courseId}`}
+            className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition"
+          >
+            <span className="mr-2">←</span> Back to Course Curriculum
+          </Link>
 
-												return (
-													<div
-														key={oIdx}
-														className={optionClass}
-														onClick={() => {
-															if (!quizSubmitted) {
-																setQuizAnswers({ ...quizAnswers, [qIdx]: oIdx });
-															}
-														}}
-													>
-														<span className="font-medium mr-2">{String.fromCharCode(65 + oIdx)}.</span>
-														{opt}
-													</div>
-												);
-											})}
-										</div>
-									</div>
-								))}
+          {isStaff && (
+            <div className="flex gap-2">
+              <button
+                onClick={toggleHidden}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider text-white transition ${lesson.hidden ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-600 hover:bg-amber-700"}`}
+              >
+                {lesson.hidden ? "Publish" : "Hide"}
+              </button>
+              <button className="bg-rose-100 text-rose-700 hover:bg-rose-700 hover:text-white px-3 py-1.5 rounded-md text-xs font-bold uppercase transition">
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
 
-							{!quizSubmitted ? (
-								<button onClick={handleQuizSubmit} className="btn-primary mt-4">
-									Submit Quiz
-								</button>
-							) : (
-								<div className="quiz-result mt-6 p-4 bg-gray-100 rounded text-center">
-									<h2>
-										Score: {score} / {lesson.questions.length}
-									</h2>
-									<button
-										onClick={() => {
-											setQuizSubmitted(false);
-											setQuizAnswers({});
-											setScore(0);
-										}}
-										className="btn-secondary mt-2"
-									>
-										Retake Quiz
-									</button>
-								</div>
-							)}
-						</div>
-					) : (
-						<div className="text-content" style={{ whiteSpace: "pre-wrap", lineHeight: "1.8" }}>
-							{lesson.content}
-						</div>
-					)}
-				</div>
-			</div>
-		</div>
-	);
+      <main className="max-w-4xl mx-auto py-10 px-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Lesson Header */}
+          <header className="p-8 border-b bg-gray-50/50">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded">
+                {lesson.type}
+              </span>
+              {lesson.hidden && (
+                <span className="text-[10px] font-bold text-amber-600 uppercase">
+                  Draft Mode
+                </span>
+              )}
+            </div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+              {lesson.title}
+            </h1>
+          </header>
+
+          <div className="p-8">
+            {/* VIDEO CONTENT */}
+            {lesson.type === "video" ? (
+              <div className="space-y-6">
+                <div className="shadow-2xl rounded-xl overflow-hidden bg-black">
+                  <iframe
+                    className="w-full aspect-video"
+                    src={lesson.content.replace("watch?v=", "embed/")}
+                    allowFullScreen
+                    title={lesson.title}
+                  />
+                </div>
+                <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                  <p className="text-sm text-slate-500 flex items-center">
+                    <span className="mr-2">🔗</span> Source:{" "}
+                    <a
+                      href={lesson.content}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ml-1 text-blue-600 hover:underline break-all"
+                    >
+                      {lesson.content}
+                    </a>
+                  </p>
+                </div>
+              </div>
+            ) : /* QUIZ CONTENT */
+            lesson.type === "quiz" ? (
+              <div className="space-y-8">
+                {lesson.questions.map((q, qIdx) => (
+                  <div
+                    key={qIdx}
+                    className="p-6 rounded-xl border border-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5"
+                  >
+                    <p className="text-lg font-semibold text-slate-800 mb-4">
+                      <span className="text-blue-600 mr-2">Q{qIdx + 1}.</span>{" "}
+                      {q.questionText}
+                    </p>
+
+                    {q.codeSnippet && (
+                      <div className="mb-4 rounded-lg overflow-hidden border border-slate-800">
+                        <pre className="bg-slate-900 text-slate-50 p-4 text-sm font-mono overflow-x-auto">
+                          <code>{q.codeSnippet}</code>
+                        </pre>
+                      </div>
+                    )}
+
+                    <div className="grid gap-3">
+                      {q.options.map((opt, oIdx) => {
+                        const isSelected = quizAnswers[qIdx] === oIdx;
+                        const isCorrect = q.correctAnswerIndex === oIdx;
+
+                        let btnStyle =
+                          "border-gray-200 hover:border-blue-300 hover:bg-blue-50";
+                        if (quizSubmitted) {
+                          if (isCorrect)
+                            btnStyle =
+                              "bg-emerald-50 border-emerald-500 text-emerald-900 ring-1 ring-emerald-500";
+                          else if (isSelected)
+                            btnStyle =
+                              "bg-rose-50 border-rose-500 text-rose-900 ring-1 ring-rose-500";
+                          else btnStyle = "opacity-50 border-gray-100";
+                        } else if (isSelected) {
+                          btnStyle =
+                            "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200";
+                        }
+
+                        return (
+                          <button
+                            key={oIdx}
+                            disabled={quizSubmitted}
+                            onClick={() =>
+                              setQuizAnswers({ ...quizAnswers, [qIdx]: oIdx })
+                            }
+                            className={`group flex items-center text-left p-4 border rounded-xl font-medium transition-all duration-200 ${btnStyle}`}
+                          >
+                            <span
+                              className={`w-6 h-6 rounded-full border mr-3 flex items-center justify-center text-xs shrink-0 ${isSelected ? "bg-white text-blue-600" : "bg-gray-50 text-gray-400 group-hover:text-blue-500"}`}
+                            >
+                              {String.fromCharCode(65 + oIdx)}
+                            </span>
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                {!quizSubmitted ? (
+                  <button
+                    onClick={handleQuizSubmit}
+                    disabled={
+                      Object.keys(quizAnswers).length < lesson.questions.length
+                    }
+                    className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg transition shadow-lg active:scale-[0.98]"
+                  >
+                    Check Results
+                  </button>
+                ) : (
+                  <div className="p-8 bg-blue-600 rounded-2xl text-white text-center shadow-xl">
+                    <h3 className="text-lg font-medium opacity-90 mb-1">
+                      Quiz Completed!
+                    </h3>
+                    <p className="text-5xl font-black mb-4">
+                      {Math.round((score / lesson.questions.length) * 100)}%
+                    </p>
+                    <p className="mb-6 font-medium">
+                      You got {score} out of {lesson.questions.length} correct.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setQuizSubmitted(false);
+                        setQuizAnswers({});
+                        setScore(0);
+                      }}
+                      className="bg-white text-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-50 transition"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* TEXT CONTENT */
+              <div className="max-w-none">
+                <div className="prose prose-slate prose-lg lg:prose-xl text-slate-700 leading-relaxed whitespace-pre-wrap">
+                  {lesson.content}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="mt-12 flex justify-between items-center text-gray-500 border-t pt-8">
+          <p className="text-sm italic">
+            End of lesson: <strong>{lesson.title}</strong>
+          </p>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="text-xs font-bold uppercase tracking-widest hover:text-blue-600 transition"
+          >
+            Back to Top ↑
+          </button>
+        </div>
+      </main>
+    </div>
+  );
 };
 
 export default LessonPage;

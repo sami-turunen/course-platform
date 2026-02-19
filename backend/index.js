@@ -15,14 +15,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 
 // Try connecting to MongoDB
-
 mongoose
-	.connect(process.env.MONGO_URI)
-	.then(() => console.log("Connected to MongoDB"))
-	.catch((error) => console.log(error));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((error) => console.log(error));
 
 app.get("/", (req, res) => {
-	res.send("Hello World!");
+  res.send("Hello World!");
 });
 
 const PORT = process.env.PORT || 3001;

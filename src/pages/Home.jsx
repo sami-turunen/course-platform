@@ -19,59 +19,91 @@ const Home = () => {
     fetchCourses();
   }, []);
 
-  const handleEnroll = async (courseId) => {
-    try {
-      await axios.post(`/api/courses/${courseId}/enroll`);
-      alert("Enrolled successfully!");
-      // Refresh courses
-      const res = await axios.get("/api/courses");
-      setCourses(res.data);
-    } catch (err) {
-      alert(err.response?.data?.message || "Enrollment failed");
-    }
-  };
+  const enrolledCourses = courses.filter((c) =>
+    c.studentsEnrolled.includes(user?.id),
+  );
+  const otherCourses = courses.filter(
+    (c) => !c.studentsEnrolled.includes(user?.id),
+  );
 
   return (
-    <div className="home-container">
-      <header className="hero">
-        <h1>Welcome to Moodle</h1>
-        <p>Start learning today.</p>
-      </header>
-      <div className="courses-grid">
-        {courses.map((course) => (
-          <div key={course._id} className="course-card">
-            {course.thumbnail && (
-              <img src={course.thumbnail} alt={course.title} />
-            )}
-            <h3>{course.title}</h3>
-            <p>{course.description}</p>
-            <p>
-              <strong>Instructor:</strong> {course.instructor.name}
-            </p>
-            {user && user.role === "student" && (
-              <button
-                onClick={() => handleEnroll(course._id)}
-                disabled={course.studentsEnrolled.includes(user.id)}
-                className="btn-primary"
-              >
-                {course.studentsEnrolled.includes(user.id)
-                  ? "Enrolled"
-                  : "Enroll Now"}
-              </button>
-            )}
-            {!user && (
-              <Link to="/login" className="btn-secondary">
-                Login to Enroll
-              </Link>
-            )}
-            {(user && user.role === "instructor") ||
-              (user.role === "admin" && (
-                <Link to={`/courses/${course._id}`} className="btn-primary">
-                  View Course
+    <div className="min-h-screen bg-[#f8fafc] pb-20">
+      <div className="max-w-6xl mx-auto px-6 pt-12">
+        {/* Welcome Header */}
+        <header className="mb-12">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Hey, {user?.name.split(" ")[0]} 👋
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Ready to pick up where you left off?
+          </p>
+        </header>
+
+        {/* My Courses Section */}
+        {enrolledCourses.length > 0 && (
+          <section className="mb-16">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-6">
+              Your Courses
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {enrolledCourses.map((course) => (
+                <Link
+                  key={course._id}
+                  to={`/courses/${course._id}`}
+                  className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-6 hover:shadow-lg hover:border-blue-200 transition group"
+                >
+                  <div className="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-3xl shrink-0">
+                    📚
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg group-hover:text-blue-600">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-slate-500 line-clamp-1 mt-1">
+                      {course.description}
+                    </p>
+                    <span className="inline-block mt-3 text-xs font-bold text-blue-600">
+                      Continue Lessons →
+                    </span>
+                  </div>
                 </Link>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Explore More Section */}
+        <section>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-6">
+            Explore Other Topics
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {otherCourses.map((course) => (
+              <div
+                key={course._id}
+                className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition"
+              >
+                <div className="aspect-video bg-slate-100 flex items-center justify-center text-2xl">
+                  📖
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-slate-900 mb-2">
+                    {course.title}
+                  </h3>
+                  <p className="text-sm text-slate-500 line-clamp-2 mb-6">
+                    {course.description}
+                  </p>
+                  <Link
+                    to={`/courses/${course._id}`}
+                    className="block text-center py-2 bg-slate-900 text-white rounded-lg text-sm font-bold"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </section>
       </div>
     </div>
   );
