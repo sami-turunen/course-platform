@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+.tiptap.prose {
+  outline: none !important;
+}
+
+.tiptap h2 {
+  font-size: 1.875rem !important; /* 3xl */
+  font-weight: 700 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  line-height: 2.25rem !important;
+}
+
+.tiptap ul {
+  list-style-type: disc !important;
+  margin-left: 1.5rem !important;
+}
+
+.tiptap ol {
+  list-style-type: decimal !important;
+  margin-left: 1.5rem !important;
+}
+
+.tiptap blockquote {
+  border-left: 4px solid #3b82f6 !important;
+  padding-left: 1rem !important;
+  font-style: italic !important;
+  color: #4b5563 !important;
+}

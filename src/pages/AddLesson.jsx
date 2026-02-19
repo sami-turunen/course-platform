@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import TextEditor from "../components/TextEditor";
 
 const AddLesson = () => {
   const { courseId, topicId } = useParams();
@@ -93,15 +94,9 @@ const AddLesson = () => {
                 }
               />
             ) : (
-              <textarea
-                required
-                rows="10"
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Write your lesson content here..."
+              <TextEditor
                 value={formData.content}
-                onChange={(e) =>
-                  setFormData({ ...formData, content: e.target.value })
-                }
+                onChange={(html) => setFormData({ ...formData, content: html })}
               />
             )}
           </div>

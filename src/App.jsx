@@ -11,7 +11,7 @@ import LessonPage from "./pages/LessonPage";
 import AddLesson from "./pages/AddLesson";
 import Explore from "./pages/Explore";
 
-// A small helper component to decide which view to show at "/"
+// A helper component to decide which view to show at "/"
 const RootPath = () => {
   const { user } = useAuth();
   return user ? <Home /> : <Landing />;

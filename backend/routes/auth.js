@@ -90,8 +90,23 @@ router.post("/login", async (req, res) => {
     );
     res.status(200).json({
       token,
-      user: { id: user._id, name: user.name, role: user.role },
+      user: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+      },
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete account
+router.delete("/delete", verifyToken, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user.id);
+    res.json({ message: "Account deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

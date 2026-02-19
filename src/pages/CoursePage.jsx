@@ -34,7 +34,6 @@ const CoursePage = () => {
   }, [id]);
 
   // Handlers
-
   const handleEnroll = async () => {
     try {
       await axios.post(`/api/courses/${id}/enroll`);

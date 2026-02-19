@@ -126,7 +126,7 @@ const LessonPage = () => {
           </header>
 
           <div className="p-8">
-            {/* VIDEO CONTENT */}
+            {/* Video content */}
             {lesson.type === "video" ? (
               <div className="space-y-6">
                 <div className="shadow-2xl rounded-xl overflow-hidden bg-black">
@@ -151,7 +151,7 @@ const LessonPage = () => {
                   </p>
                 </div>
               </div>
-            ) : /* QUIZ CONTENT */
+            ) : /* Quiz content */
             lesson.type === "quiz" ? (
               <div className="space-y-8">
                 {lesson.questions.map((q, qIdx) => (
@@ -249,11 +249,21 @@ const LessonPage = () => {
                 )}
               </div>
             ) : (
-              /* TEXT CONTENT */
+              /* Text content */
               <div className="max-w-none">
-                <div className="prose prose-slate prose-lg lg:prose-xl text-slate-700 leading-relaxed whitespace-pre-wrap">
-                  {lesson.content}
-                </div>
+                <div
+                  className="prose prose-slate max-w-none 
+      [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h2]:mt-8 [&_h2]:mb-4
+      [&_ul]:list-disc [&_ul]:ml-6
+      [&_ol]:list-decimal [&_ol]:ml-6
+      [&_blockquote]:border-l-4 [&_blockquote]:border-blue-500 [&_blockquote]:pl-4 [&_blockquote]:italic
+      /* Added Quote Logic Below */
+      [&_blockquote_p:first-of-type]:before:content-['“'] 
+      [&_blockquote_p:last-of-type]:after:content-['”']
+      [&_blockquote_p]:before:text-blue-500 [&_blockquote_p]:before:font-serif [&_blockquote_p]:before:text-xl
+      [&_blockquote_p]:after:text-blue-500 [&_blockquote_p]:after:font-serif [&_blockquote_p]:after:text-xl"
+                  dangerouslySetInnerHTML={{ __html: lesson.content }}
+                />
               </div>
             )}
           </div>
