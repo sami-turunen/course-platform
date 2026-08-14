@@ -3,16 +3,19 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import TextEditor from "../components/TextEditor";
 
+// Page for adding a new lesson
 const AddLesson = () => {
-  const { courseId, topicId } = useParams();
-  const navigate = useNavigate();
+  const { courseId, topicId } = useParams(); // Ids for the course and topic
+  const navigate = useNavigate(); // We'll use this later to navigate
 
+  // State for the form data
   const [formData, setFormData] = useState({
     title: "",
     type: "text", // default
     content: "",
   });
 
+  // Custom handler for the form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -27,6 +30,7 @@ const AddLesson = () => {
     }
   };
 
+  // Render the form
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -101,6 +105,7 @@ const AddLesson = () => {
             )}
           </div>
 
+          {/* Buttons */}
           <div className="pt-4 flex gap-3">
             <button
               type="submit"

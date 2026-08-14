@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+// Function for token verification
 export const verifyToken = (req, res, next) => {
 	const authHeader = req.header("Authorization");
 	if (!authHeader) return res.status(401).json({ error: "Access Denied" });
@@ -16,6 +17,8 @@ export const verifyToken = (req, res, next) => {
 	}
 };
 
+// Function to verify that the user has at least the privileges of an instructor
+// An admin has the privileges of an instructor + can manage platform users
 export const verifyInstructor = (req, res, next) => {
 	if (req.user.role === "instructor" || req.user.role === "admin") {
 		next();
@@ -24,6 +27,7 @@ export const verifyInstructor = (req, res, next) => {
 	}
 };
 
+// Function to verify that the user has the privileges of an admin
 export const verifyAdmin = (req, res, next) => {
 	if (req.user.role === "admin") {
 		next();

@@ -2,13 +2,19 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
+// Login page
 const Login = () => {
+  // State for email and passowrd and possible error
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const [error, setError] = useState("");
 
+
+  // Login function and navigation
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Reset error state
@@ -23,6 +29,7 @@ const Login = () => {
     }
   };
 
+  // Display the login page
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border border-gray-100">

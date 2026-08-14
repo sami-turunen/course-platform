@@ -3,10 +3,12 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
+// Home page
 const Home = () => {
-  const [courses, setCourses] = useState([]);
-  const { user } = useAuth();
+  const [courses, setCourses] = useState([]); // Their courses
+  const { user } = useAuth(); // Get the user
 
+  // Fetch their courses every time the component mounts
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -19,20 +21,27 @@ const Home = () => {
     fetchCourses();
   }, []);
 
+  // Safe checks for user ID and studentsEnrolled array
+  const userId = user?.id || user?._id;
   const enrolledCourses = courses.filter((c) =>
-    c.studentsEnrolled.includes(user?.id),
+    c.studentsEnrolled?.includes(userId)
   );
   const otherCourses = courses.filter(
-    (c) => !c.studentsEnrolled.includes(user?.id),
+    (c) => !c.studentsEnrolled?.includes(userId)
   );
 
+  // Safely get the first name or fallback gracefully
+  const firstName =
+    user?.name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
+
+  // Display the home page
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20">
       <div className="max-w-6xl mx-auto px-6 pt-12">
         {/* Welcome Header */}
         <header className="mb-12">
           <h1 className="text-3xl font-bold text-slate-900">
-            Hey, {user?.name.split(" ")[0]} 👋
+            Hey, {firstName} 👋
           </h1>
           <p className="text-slate-500 mt-1">
             Ready to pick up where you left off?

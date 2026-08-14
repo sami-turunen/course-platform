@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+// Page for exploring courses
 const Explore = () => {
-  const [courses, setCourses] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [courses, setCourses] = useState([]); // All courses
+  const [searchQuery, setSearchQuery] = useState(""); // Search query, this will be used to filter the courses
 
+  // Fetch all courses every time the component mountss
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -18,10 +20,12 @@ const Explore = () => {
     fetchCourses();
   }, []);
 
+  // Filter the courses based on the search query
   const filteredCourses = courses.filter((course) =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  // Display the courses
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20">
       <div className="max-w-7xl mx-auto px-6 pt-16">

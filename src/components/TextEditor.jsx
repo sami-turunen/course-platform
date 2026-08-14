@@ -3,24 +3,32 @@ import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, List, ListOrdered, Heading2, Quote } from "lucide-react";
 import { useEffect } from "react";
 
+/**
+ * Text editor component for instructors and admins to make writing content more pleasent and convenient
+ * @param value - The content of the editor
+ * @param onChange - The function to call when the content of the editor changes
+ * @returns {JSX.Element} - The TextEditor component
+ */
 const TextEditor = ({ value, onChange }) => {
+  // Initialize the editor with value given from the argument
   const editor = useEditor({
     extensions: [StarterKit],
     content: value,
     editorProps: {
       attributes: {
         class:
-          "tiptap prose prose-slate max-w-none focus:outline-none min-h-[300px] p-4",
+          "tiptap prose prose-slate max-w-none focus:outline-none min-h-[300px] p-4", // Styles
       },
     },
-    immediatelyRender: false,
+    immediatelyRender: false, // Prevent the editor from rendering immediately
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
 
-  if (!editor) return null;
+  if (!editor) return null; // Prevent the component from rendering before the editor is initialized
 
+  // Single menu button
   const MenuButton = ({ onClick, isActive, children }) => (
     <button
       type="button"
@@ -76,7 +84,7 @@ const TextEditor = ({ value, onChange }) => {
         </MenuButton>
       </div>
 
-      {/* Editor Surface */}
+      {/* Editor */}
       <EditorContent editor={editor} />
     </div>
   );

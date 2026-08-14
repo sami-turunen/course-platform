@@ -105,6 +105,7 @@ router.post("/:id/topics", verifyToken, verifyInstructor, async (req, res) => {
   }
 });
 
+// Get topics for a course
 router.get("/:id/topics", async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -143,6 +144,7 @@ router.post(
   },
 );
 
+// Get lessons for a topic
 router.get("/:id/topics/:topicId/lessons", async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -155,6 +157,7 @@ router.get("/:id/topics/:topicId/lessons", async (req, res) => {
   }
 });
 
+// Get a lesson for a topic
 router.get("/:id/topics/:topicId/lessons/:lessonId", async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -246,52 +249,5 @@ router.patch(
     }
   },
 );
-
-// // Add a topic to a course
-// router.post("/:id/topics", verifyToken, verifyInstructor, async (req, res) => {
-// 	try {
-// 		const course = await Course.findById(req.params.id);
-// 		if (!course) return res.status(404).json({ error: "Course not found" });
-
-// 		if (course.instructor.toString() !== req.user.id && req.user.role !== "admin") {
-// 			return res.status(403).json({ error: "Not authorized" });
-// 		}
-
-// 		course.topics.push(req.body);
-// 		await course.save();
-// 		res.status(201).json(course);
-// 	} catch (err) {
-// 		res.status(500).json({ error: err.message });
-// 	}
-// });
-
-// // Add a lesson to a topic
-// router.post(
-//   "/:id/topics/:topicId/lessons",
-//   verifyToken,
-//   verifyInstructor,
-//   async (req, res) => {
-//     try {
-//       const course = await Course.findById(req.params.id);
-//       if (!course) return res.status(404).json({ error: "Course not found" });
-
-//       if (
-//         course.instructor.toString() !== req.user.id &&
-//         req.user.role !== "admin"
-//       ) {
-//         return res.status(403).json({ error: "Not authorized" });
-//       }
-
-//       const topic = course.topics.id(req.params.topicId);
-//       if (!topic) return res.status(404).json({ error: "Topic not found" });
-
-//       topic.lessons.push(req.body);
-//       await course.save();
-//       res.status(201).json(course);
-//     } catch (err) {
-//       res.status(500).json({ error: err.message });
-//     }
-//   },
-// );
 
 export default router;

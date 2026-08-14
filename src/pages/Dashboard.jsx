@@ -3,16 +3,20 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+// Dashboard
+// This is a dynamic dashboard, so different users will see different things
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Get the user
 
+  // If the user is not logged in, advise them to
   if (!user)
     return (
       <div className="flex items-center justify-center min-h-screen text-xl font-semibold">
         Please login to access the dashboard.
       </div>
     );
-
+  
+  // Show the dashboard based on the user's role
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -24,10 +28,11 @@ const Dashboard = () => {
   );
 };
 
-/* Student */
+/* Student Dashboard */
 const StudentDashboard = ({ user }) => {
-  const [myCourses, setMyCourses] = useState([]);
+  const [myCourses, setMyCourses] = useState([]); // Their courses
 
+  // Fetch their courses every time the user variable changes
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -43,6 +48,7 @@ const StudentDashboard = ({ user }) => {
     fetchCourses();
   }, [user]);
 
+  // Display their courses
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -84,21 +90,24 @@ const StudentDashboard = ({ user }) => {
   );
 };
 
-/* Instructor */
+/* Instructor Dashboard */
 const InstructorDashboard = ({ user }) => {
-  const [myCourses, setMyCourses] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [newCourse, setNewCourse] = useState({ title: "", description: "" });
+  const [myCourses, setMyCourses] = useState([]); // Courses they've created
+  const [showForm, setShowForm] = useState(false); // Is the form visible?
+  const [newCourse, setNewCourse] = useState({ title: "", description: "" }); // State for a new course
 
+  // Function to fetch their courses
   const fetchCourses = async () => {
     const res = await axios.get("/api/courses");
     setMyCourses(res.data.filter((c) => c.instructor?._id === user.id));
   };
 
+  // Fetch their courses every time the user variable changes
   useEffect(() => {
     fetchCourses();
   }, [user]);
 
+  // Handler for creating a new course
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -111,6 +120,7 @@ const InstructorDashboard = ({ user }) => {
     }
   };
 
+  // Display their courses
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -182,18 +192,19 @@ const InstructorDashboard = ({ user }) => {
 
 /* Admin Dashboard*/
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [showUserForm, setShowUserForm] = useState(false);
-  const [newUser, setNewUser] = useState({
+  const [users, setUsers] = useState([]); // All users
+  const [courses, setCourses] = useState([]); // All courses
+  const [showUserForm, setShowUserForm] = useState(false); // Is the user form visible?
+  const [newUser, setNewUser] = useState({ // State for creating a new user
     name: "",
     email: "",
     password: "",
     role: "instructor",
   });
-  const [showForm, setShowForm] = useState(false);
-  const [newCourse, setNewCourse] = useState({ title: "", description: "" });
+  const [showForm, setShowForm] = useState(false); // Is the course form visible?
+  const [newCourse, setNewCourse] = useState({ title: "", description: "" }); // State for creating a new course
 
+  // Function to fetch all users and courses
   const fetchData = async () => {
     try {
       const uRes = await axios.get("/api/auth/users", {
@@ -207,10 +218,12 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch data when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Render the dashboard
   return (
     <div className="space-y-12">
       <header className="border-b pb-4">
@@ -229,6 +242,7 @@ const AdminDashboard = () => {
           </button>
         </div>
 
+        {/* If the user wants to add a new user, show the form */}
         {showUserForm && (
           <form
             onSubmit={async (e) => {
@@ -278,6 +292,7 @@ const AdminDashboard = () => {
           </form>
         )}
 
+        {/* Table for displaying users */}
         <div className="bg-white shadow-md rounded-xl overflow-hidden border">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

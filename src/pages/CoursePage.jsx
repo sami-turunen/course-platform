@@ -3,20 +3,22 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
+// Page for a specific course
 const CoursePage = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { id } = useParams(); // ID of the course
+  const { user } = useAuth(); // User
+  const navigate = useNavigate(); // We'll use this later to navigate
 
-  const [course, setCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
+  const [course, setCourse] = useState(null); // Course
+  const [loading, setLoading] = useState(true); // Is the page loading?
+  const [isEditing, setIsEditing] = useState(false); // Is the course being edited?
+  const [editData, setEditData] = useState({}); // Edit state
 
   // Topic UI State
   const [isAddingTopic, setIsAddingTopic] = useState(false);
   const [newTopicTitle, setNewTopicTitle] = useState("");
 
+  // Helper for fetching the course by the given ID
   const fetchCourse = async () => {
     try {
       const res = await axios.get(`/api/courses/${id}`);
@@ -29,11 +31,12 @@ const CoursePage = () => {
     }
   };
 
+  // Fetch the course every time the ID changes
   useEffect(() => {
     fetchCourse();
   }, [id]);
 
-  // Handlers
+  // Handle the case where the user wants to enroll in the course
   const handleEnroll = async () => {
     try {
       await axios.post(`/api/courses/${id}/enroll`);
@@ -44,6 +47,7 @@ const CoursePage = () => {
     }
   };
 
+  // Handle the case where the user wants to update the course
   const handleUpdateCourse = async () => {
     try {
       const res = await axios.put(`/api/courses/${id}`, editData);
@@ -54,6 +58,7 @@ const CoursePage = () => {
     }
   };
 
+  // Handle the case where the user wants to add a new topic
   const handleAddTopic = async (e) => {
     e.preventDefault();
     try {
@@ -66,24 +71,28 @@ const CoursePage = () => {
     }
   };
 
+  // Helpers for checking if the user is an instructor or enrolled
   const isInstructor =
     user && (user.id === course?.instructor?._id || user.role === "admin");
   const isEnrolled =
     user && (course?.studentsEnrolled?.includes(user.id) || isInstructor);
 
+  // When the page is just loading, show a loading message
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen italic text-gray-500">
         Loading Course...
       </div>
     );
+  // If the course doesn't exist, show an error
   if (!course)
     return (
       <div className="p-8 text-center text-red-500 font-bold">
         Course not found
       </div>
     );
-
+  
+  // Render the page
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       {/* Header Banner */}
@@ -118,7 +127,7 @@ const CoursePage = () => {
           </div>
 
           <div className="flex gap-3">
-            {isInstructor && !isEditing && (
+            {isInstructor && !isEditing && ( // Edit button for instructors and above
               <button
                 onClick={() => setIsEditing(true)}
                 className="bg-white text-slate-900 px-5 py-2 rounded-lg font-bold hover:bg-gray-100 transition"
@@ -126,7 +135,7 @@ const CoursePage = () => {
                 Edit Course
               </button>
             )}
-            {!isEnrolled && user && (
+            {!isEnrolled && user && ( // Enroll button for non-enrolled users
               <button
                 onClick={handleEnroll}
                 className="bg-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg"
@@ -230,7 +239,7 @@ const CoursePage = () => {
                     <h3 className="text-lg font-bold text-slate-800">
                       {topic.title}
                     </h3>
-                    {isInstructor && (
+                    {isInstructor && ( // Lesson add button for instructors
                       <Link
                         to={`/courses/${id}/topics/${topic._id}/add-lesson`}
                         className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full hover:bg-slate-200 transition"
@@ -239,7 +248,8 @@ const CoursePage = () => {
                       </Link>
                     )}
                   </div>
-
+                  
+                  {/* Lessons */}
                   <div className="space-y-2">
                     {topic.lessons.length > 0 ? (
                       topic.lessons

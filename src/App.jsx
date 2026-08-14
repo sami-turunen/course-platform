@@ -17,6 +17,7 @@ const RootPath = () => {
   return user ? <Home /> : <Landing />;
 };
 
+// The maina pp
 function App() {
   return (
     <BrowserRouter>

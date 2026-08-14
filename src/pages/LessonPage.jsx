@@ -3,20 +3,22 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
+// Page for a specific lesson
 const LessonPage = () => {
-  const { courseId, topicId, lessonId } = useParams();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { courseId, topicId, lessonId } = useParams(); // Ids for the course, topic, and lesson
+  const { user } = useAuth(); // Get the user
+  const navigate = useNavigate(); // We'll use this later to navigate
 
-  const [lesson, setLesson] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [lesson, setLesson] = useState(null); // Lesson data
+  const [loading, setLoading] = useState(true); // Is the page loading?
+  const [error, setError] = useState(null); // Error state
 
   // Quiz State
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [score, setScore] = useState(0);
 
+  // Fetch the lsson if user, or some of the ids change
   useEffect(() => {
     const fetchLesson = async () => {
       try {
@@ -42,6 +44,7 @@ const LessonPage = () => {
     if (user) fetchLesson();
   }, [courseId, topicId, lessonId, user]);
 
+  // Handle quiz submission
   const handleQuizSubmit = () => {
     let correctCount = 0;
     lesson.questions.forEach((q, idx) => {
@@ -51,6 +54,7 @@ const LessonPage = () => {
     setQuizSubmitted(true);
   };
 
+  // Handle visibility
   const toggleHidden = async () => {
     try {
       await axios.patch(
@@ -63,12 +67,14 @@ const LessonPage = () => {
     }
   };
 
+  // Show a loading screen
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-500">
         Loading lesson content...
       </div>
     );
+  // Error message when the lesson is not found
   if (error)
     return (
       <div className="max-w-2xl mx-auto mt-20 p-6 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center font-bold">
@@ -76,8 +82,10 @@ const LessonPage = () => {
       </div>
     );
 
+  // Check if the user is a staff member (admin or instructor)
   const isStaff = user?.role === "admin" || user?.role === "instructor";
 
+  // Display the lesson
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
@@ -90,6 +98,8 @@ const LessonPage = () => {
             <span className="mr-2">←</span> Back to Course Curriculum
           </Link>
 
+
+          {/* Course management buttons for staff */}
           {isStaff && (
             <div className="flex gap-2">
               <button

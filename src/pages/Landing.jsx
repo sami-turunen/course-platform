@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Landing page
 const Landing = () => {
-  const [featuredCourses, setFeaturedCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [featuredCourses, setFeaturedCourses] = useState([]); // Featured courses to display
+  const [loading, setLoading] = useState(true); // Is the page loading?
 
+  // Fetch featured courses every time the component mounts
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
@@ -21,6 +23,7 @@ const Landing = () => {
     fetchFeatured();
   }, []);
 
+  // Display the landing page
   return (
     <div className="min-h-screen bg-white text-slate-900 selection:bg-mist-500 selection:text-white">
       {/* Navigation */}
