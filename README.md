@@ -4,7 +4,7 @@ This is a moodle-like application for creating online courses that students can 
 
 ---
 
-## ✨ Features
+## Features
 
 - **Course management**: Admins/Teachers can create, edit and delete courses
 - **Course completion**: Students can enroll on courses to learn.
@@ -12,7 +12,7 @@ This is a moodle-like application for creating online courses that students can 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React, Tailwind CSS, React Router
 - **Backend**: Node.js, Express
@@ -20,7 +20,7 @@ This is a moodle-like application for creating online courses that students can 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps to set up the project locally on your machine.
 
